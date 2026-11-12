@@ -44,6 +44,12 @@ body { background: var(--bg); color: var(--ink); font-family: var(--f-body); fon
 .mark span { color: var(--red); }
 .meta { display: grid; gap: 2px; font-size: 13px; text-align: right; color: #cfc9c9; }
 .meta b { color: var(--on-band); font-weight: 600; }
+.meta { justify-items: end; gap: 10px; }
+.theme-toggle { font: 600 12px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--on-band); background: transparent; border: 1.5px solid #5a5454; border-radius: 999px; padding: 6px 12px 6px 8px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.theme-toggle:hover { border-color: var(--on-band); }
+.theme-toggle:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.tt-dot { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(90deg, #ffffff 50%, var(--red) 50%); }
+@media (max-width: 760px) { .meta { justify-items: start; } }
 .redline { height: 6px; background: var(--red); }
 .wrap { padding-block: 40px 72px; display: grid; gap: 56px; }
 h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.12; margin: 0 0 14px; font-weight: 800; letter-spacing: -.015em; text-wrap: balance; max-width: 22ch; }
@@ -162,6 +168,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule)
   <div class="in">
     <p class="mark">argus<span>.</span></p>
     <div class="meta">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode"><span class="tt-dot" aria-hidden="true"></span><span class="tt-label">Dark mode</span></button>
       <div><b>Prototype planning doc</b></div>
     </div>
   </div>
@@ -359,6 +366,19 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule)
 
   <footer>ARGUS is named for the hundred-eyed watchman of Greek myth. Numbers in the prototype are illustrative unless they come from the Meta test account.</footer>
 </main>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme-toggle');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  try { var saved = localStorage.getItem('argus-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  function current() { var t = root.getAttribute('data-theme'); if (t === 'dark' || t === 'light') return t; return mq && mq.matches ? 'dark' : 'light'; }
+  function render() { var next = current() === 'dark' ? 'light' : 'dark'; btn.querySelector('.tt-label').textContent = next === 'dark' ? 'Dark mode' : 'Light mode'; btn.setAttribute('aria-label', 'Switch to ' + next + ' mode'); }
+  btn.addEventListener('click', function () { var next = current() === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', next); try { localStorage.setItem('argus-theme', next); } catch (e) {} render(); });
+  if (mq && mq.addEventListener) mq.addEventListener('change', render);
+  new MutationObserver(render).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  render();
+})();
+</script>
 
 </body>
 </html>
