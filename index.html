@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARGUS Prototype Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Inter+Tight:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a single reading column on white, black type, Macmillan red used only for the ARGUS mark, section numbers, and the one thing per section that needs attention. */
+:root {
+  --bg: #ffffff;
+  --surface: #f6f4f4;
+  --ink: #111111;
+  --muted: #5c5757;
+  --rule: #e3dede;
+  --red: #e2231a;
+  --red-ink: #c41a12;
+  --red-wash: #fdecea;
+  --on-red: #ffffff;
+  --band: #111111;
+  --on-band: #ffffff;
+  --f-mark: "Gasoek One", "Arial Black", Impact, sans-serif;
+  --f-body: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0d0d; --surface: #1a1818; --ink: #f4f1f1; --muted: #b2abab; --rule: #2e2a2a;
+    --red: #ff3b30; --red-ink: #ff6a61; --red-wash: #2a1312; --on-red: #ffffff;
+    --band: #000000; --on-band: #ffffff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0d0d; --surface: #1a1818; --ink: #f4f1f1; --muted: #b2abab; --rule: #2e2a2a;
+  --red: #ff3b30; --red-ink: #ff6a61; --red-wash: #2a1312; --on-red: #ffffff;
+  --band: #000000; --on-band: #ffffff; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.band { background: var(--band); color: var(--on-band); }
+.band .in, .wrap { max-width: 980px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.band .in { padding-block: 28px 30px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.mark { font-family: var(--f-mark); font-size: clamp(56px, 11vw, 96px); line-height: .85; text-transform: lowercase; margin: 0; color: var(--on-band); letter-spacing: -.01em; }
+.mark span { color: var(--red); }
+.meta { display: grid; gap: 2px; font-size: 13px; text-align: right; color: #cfc9c9; }
+.meta b { color: var(--on-band); font-weight: 600; }
+.redline { height: 6px; background: var(--red); }
+.wrap { padding-block: 40px 72px; display: grid; gap: 56px; }
+h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.12; margin: 0 0 14px; font-weight: 800; letter-spacing: -.015em; text-wrap: balance; max-width: 22ch; }
+.lede { font-size: 18px; margin: 0; max-width: 62ch; }
+.lede strong { font-weight: 700; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid var(--ink); margin-top: 28px; }
+.fact { padding: 14px 16px 4px 0; display: grid; gap: 4px; align-content: start; }
+.fact + .fact { padding-left: 16px; border-left: 1px solid var(--rule); }
+.label { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.fact .v { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.fact .v.red { color: var(--red-ink); }
+section { display: grid; gap: 18px; min-width: 0; }
+.sh { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; }
+.sh .n { font-weight: 800; color: var(--red-ink); font-size: 14px; font-variant-numeric: tabular-nums; }
+h2 { font-size: 22px; margin: 0; font-weight: 800; letter-spacing: -.01em; text-wrap: balance; }
+h3 { font-size: 16px; margin: 0; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
+.muted { color: var(--muted); }
+ul.clean { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 66ch; }
+/* scope */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.col { min-width: 0; display: grid; gap: 10px; align-content: start; }
+.col.in-scope { border-top: 3px solid var(--ink); padding-top: 12px; }
+.col.out-scope { border-top: 3px solid var(--rule); padding-top: 12px; }
+/* flow */
+.flow { display: grid; gap: 14px; }
+.lane { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; align-items: start; }
+.lane .label { padding-top: 10px; }
+.steps { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.step { border: 1.5px solid var(--ink); border-radius: 6px; padding: 7px 11px; font-size: 14px; font-weight: 600; background: var(--bg); line-height: 1.25; }
+.step small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.step.key { background: var(--red); border-color: var(--red); color: var(--on-red); }
+.step.key small { color: var(--on-red); opacity: .85; }
+.step.sim { border-style: dashed; }
+.arrow { color: var(--muted); font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1.5px solid var(--ink); }
+.legend i.k { background: var(--red); border-color: var(--red); }
+.legend i.s { border-style: dashed; }
+/* features */
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--ink); }
+.feat { padding: 16px 18px 18px 0; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.feat + .feat { padding-left: 18px; border-left: 1px solid var(--rule); }
+.feat .tag { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red-ink); }
+.feat p, .feat li { font-size: 14.5px; }
+.feat ul { margin: 0; padding-left: 16px; display: grid; gap: 4px; }
+.score { display: grid; gap: 5px; margin-top: 2px; }
+.score div { display: grid; grid-template-columns: 112px minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-size: 13px; }
+.score .bar { height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; }
+.score .bar span { display: block; height: 100%; background: var(--ink); }
+.score div:first-child .bar span { background: var(--red); }
+.score em { font-style: normal; font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+.also { background: var(--surface); border-radius: 8px; padding: 14px 18px; display: grid; gap: 6px; }
+.also p { font-size: 14.5px; }
+/* architecture */
+.arch-scroll { overflow-x: auto; }
+.arch { display: grid; grid-template-columns: 1fr 1.1fr 1.3fr; gap: 0 28px; min-width: 680px; align-items: center; }
+.box { border: 1.5px solid var(--ink); border-radius: 8px; padding: 12px 14px; display: grid; gap: 3px; background: var(--bg); position: relative; }
+.box b { font-size: 15px; }
+.box span { font-size: 13px; color: var(--muted); }
+.box.real { border-color: var(--red); box-shadow: inset 4px 0 0 var(--red); }
+.box.sim { border-style: dashed; }
+.stack { display: grid; gap: 10px; }
+.arch .mid { position: relative; }
+.arch .mid::before, .arch .mid::after { content: ""; position: absolute; top: 50%; width: 28px; border-top: 1.5px solid var(--muted); }
+.arch .mid::before { left: -28px; }
+.arch .mid::after { right: -28px; }
+/* timeline */
+.tl-scroll { overflow-x: auto; }
+.tl { min-width: 860px; display: grid; gap: 8px; }
+.tl-row { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 12px; align-items: center; }
+.tl-row .name { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.tl-row .name small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.track { position: relative; height: 26px; border-bottom: 1px solid var(--rule); }
+.track .off { position: absolute; top: 0; bottom: 0; background: var(--surface); }
+.track .off.out { background: var(--red-wash); }
+.track .b { position: absolute; top: 4px; bottom: 4px; background: var(--ink); border-radius: 3px; }
+.track .b.r { background: var(--red); }
+.days { display: grid; grid-template-columns: repeat(29, minmax(0, 1fr)); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.days .hol { color: var(--red-ink); font-weight: 700; }
+.days .wk { opacity: .5; }
+.marker { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--red); }
+.tl-note { font-size: 13px; color: var(--muted); }
+/* tables */
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+th { text-align: left; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink); }
+td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td:first-child { font-weight: 600; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.pill.hi { color: var(--red-ink); }
+.pill.md { color: var(--ink); }
+.pill.lo { color: var(--muted); }
+/* asks */
+.asks { counter-reset: a; display: grid; gap: 0; border-top: 2px solid var(--ink); }
+.ask { counter-increment: a; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.ask::before { content: counter(a); width: 28px; height: 28px; border-radius: 50%; background: var(--red); color: var(--on-red); display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+.ask p { font-size: 15px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
+@media (max-width: 760px) {
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fact:nth-child(3) { padding-left: 0; border-left: 0; }
+  .features { grid-template-columns: minmax(0, 1fr); }
+  .feat + .feat { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .lane { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .lane .label { padding-top: 0; }
+  .meta { text-align: left; }
+}
+</style>
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="in">
+    <p class="mark">argus<span>.</span></p>
+    <div class="meta">
+      <div><b>Prototype planning doc</b></div>
+    </div>
+  </div>
+</header>
+<div class="redline" aria-hidden="true"></div>
+
+<main class="wrap">
+  <section aria-labelledby="t">
+    <h1 id="t">A working ARGUS prototype that launches a real Meta campaign by December 10</h1>
+    <p class="lede">ARGUS will be an agentic advertising specialist for Macmillan imprints. The prototype lets an imprint ad operator type an ISBN and a budget, get a recommended launch plan, sign off, and see it go live on a <strong>Meta test ad account</strong>, then track it with a title health score. We are asking for sponsorship of the build and help securing Meta access.</p>
+    <div class="facts">
+      <div class="fact"><span class="label">Ready by</span><span class="v red">Dec 10, 2026</span></div>
+      <div class="fact"><span class="label">Tested with</span><span class="v">Imprint ad operators</span></div>
+      <div class="fact"><span class="label">First platform</span><span class="v">Meta (test account)</span></div>
+      <div class="fact"><span class="label">Top three features</span><span class="v">Launch plan, health score, live tracking</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s1">
+    <div class="sh"><span class="n">1</span><h2 id="s1">What the prototype has to prove</h2></div>
+    <p>Many people running ads at Macmillan are generalists who also handle publicity and retail, so campaigns get set up whichever way is quickest. The prototype tests whether ARGUS can give them a correct, best-practice setup with almost no ad expertise required.</p>
+    <ul class="clean">
+      <li>An ad operator goes from ISBN to a signed-off Meta campaign in <strong>under 15 minutes</strong>, without help.</li>
+      <li>The campaign ARGUS creates in the test account matches the approved plan exactly.</li>
+      <li>Operators can explain what the health score says about a title, and why, after one look.</li>
+      <li>Operators trust the suggestions enough to approve most of them, and can switch to automatic mode when they want to.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="sh"><span class="n">2</span><h2 id="s2">Scope</h2></div>
+    <div class="two">
+      <div class="col in-scope">
+        <span class="label">In the prototype</span>
+        <ul class="clean">
+          <li>Real sign-in with marketer, director, and finance roles; each user sees one imprint</li>
+          <li>Launch center: ISBN, budget, goal, flight dates, platforms, destination, comp titles, tone</li>
+          <li>AI-drafted plan with a recommended platform mix and budget split, editable field by field</li>
+          <li>Uploaded static images, with Reedy keywords and copy (simulated) shown and editable</li>
+          <li>One-person sign-off, then a real launch to a Meta test ad account</li>
+          <li>Live tracking, health score, and suggestions with an approve-or-automatic toggle</li>
+          <li>Imprint portfolio view and an on-demand end-of-campaign PDF</li>
+        </ul>
+      </div>
+      <div class="col out-scope">
+        <span class="label">Not yet</span>
+        <ul class="clean">
+          <li>Google, TikTok, and Amazon launches (planned in the mix, not launched)</li>
+          <li>Live CHAPTR integration; Reedy and Amplify are simulated and labeled "powered by CHAPTR"</li>
+          <li>Generated creative, video, and multi-title carousels</li>
+          <li>Real BookScan or Amazon sales data; sales lines use illustrative numbers</li>
+          <li>Chat assistant, phone layout, and Slack or email approvals</li>
+          <li>Saved imprint budget profiles</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="sh"><span class="n">3</span><h2 id="s3">User flow</h2></div>
+    <p>Users start from a simple menu with three paths. The launch path is the core of the test.</p>
+    <div class="flow">
+      <div class="lane">
+        <span class="label">Start</span>
+        <div class="steps">
+          <span class="step">Sign in<small>role and imprint</small></span><span class="arrow">→</span>
+          <span class="step">Home menu<small>Launch · Reporting · Title reporting</small></span>
+        </div>
+      </div>
+      <div class="lane">
+        <span class="label">Launch center</span>
+        <div class="steps">
+          <span class="step">Find title<small>ISBN search</small></span><span class="arrow">→</span>
+          <span class="step">Brief<small>budget, goal, dates, comps</small></span><span class="arrow">→</span>
+          <span class="step key">Plan drafted<small>mix, split, audiences</small></span><span class="arrow">→</span>
+          <span class="step sim">Creative and keywords<small>upload image · Reedy</small></span><span class="arrow">→</span>
+          <span class="step">Sign-off<small>marketer</small></span><span class="arrow">→</span>
+          <span class="step key">Launch to Meta<small>test ad account</small></span>
+        </div>
+      </div>
+      <div class="lane">
+        <span class="label">Reporting center</span>
+        <div class="steps">
+          <span class="step key">Live tracking<small>spend, delivery, results</small></span><span class="arrow">→</span>
+          <span class="step">Suggestions<small>approve, or run automatically</small></span><span class="arrow">→</span>
+          <span class="step">Campaign report<small>PDF on demand</small></span>
+        </div>
+      </div>
+      <div class="lane">
+        <span class="label">Title reporting</span>
+        <div class="steps">
+          <span class="step key">Health score<small>0 to 100 per title</small></span><span class="arrow">→</span>
+          <span class="step">Sales vs. spend<small>weekly</small></span><span class="arrow">→</span>
+          <span class="step">Imprint portfolio<small>spend vs. budget by title</small></span>
+        </div>
+      </div>
+      <div class="legend"><span><i class="k"></i>Top-three feature</span><span><i class="s"></i>Simulated in the prototype</span><span><i></i>Built for real</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="sh"><span class="n">4</span><h2 id="s4">The three features that matter most</h2></div>
+    <div class="features">
+      <div class="feat">
+        <span class="tag">Launch plan</span>
+        <h3>From ISBN to live ads</h3>
+        <p>ARGUS pulls the title, reads the brief, and recommends which platforms to use and how to split the budget, with a reason next to every choice.</p>
+        <p>Once the marketer signs off, <strong>ARGUS launches the ads itself</strong>, building every campaign, ad set, and ad in Meta with no manual setup.</p>
+      </div>
+      <div class="feat">
+        <span class="tag">Health score</span>
+        <h3>One number per title, 0 to 100</h3>
+        <p>Weighted by what Andy ranked most important:</p>
+        <div class="score" aria-label="Health score weights">
+          <div><span>Results vs. goal</span><span class="bar"><span style="width:100%"></span></span><em>40%</em></div>
+          <div><span>Open problems</span><span class="bar"><span style="width:75%"></span></span><em>30%</em></div>
+          <div><span>Creative fatigue</span><span class="bar"><span style="width:50%"></span></span><em>20%</em></div>
+          <div><span>Spend pacing</span><span class="bar"><span style="width:25%"></span></span><em>10%</em></div>
+        </div>
+        <p class="muted" style="font-size:13px">Weights are a proposed starting point.</p>
+      </div>
+      <div class="feat">
+        <span class="tag">Live tracking</span>
+        <h3>Real delivery from the test account</h3>
+        <p>Spend, pacing, and results pulled from Meta, shown next to weekly sales. The main result is the change in weekly sales during the campaign.</p>
+        <ul>
+          <li>Daily digest per title, alerts only when action is needed</li>
+          <li>Sales are illustrative until BookScan or Amazon data is connected</li>
+        </ul>
+      </div>
+    </div>
+    <div class="also">
+      <h3>Suggestions and autonomy</h3>
+      <p>Each suggestion shows the change in one line, why, the expected impact as a range, and the risk, with undo steps and expiry under details. A toggle switches between "I approve every change" and "ARGUS makes the change," so we can test both. Approvals happen inside ARGUS only.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="sh"><span class="n">5</span><h2 id="s5">How it's built</h2></div>
+    <p>A new web app, separate from the earlier clickable demo, which stays as a design reference.</p>
+    <div class="arch-scroll">
+      <div class="arch" role="img" aria-label="Architecture: web app talks to the ARGUS server, which connects to the database, Claude, the Meta Marketing API, simulated CHAPTR, and illustrative sales data">
+        <div class="box"><b>Web app</b><span>Desktop browser, sign-in with roles</span></div>
+        <div class="box mid"><b>ARGUS server</b><span>Plans, launches, tracking, health score, suggestions</span></div>
+        <div class="stack">
+          <div class="box real"><b>Meta Marketing API</b><span>Test ad account, real launch and delivery data</span></div>
+          <div class="box real"><b>Claude</b><span>Drafts plans, copy, and suggestions</span></div>
+          <div class="box"><b>Database</b><span>Titles, campaigns, approvals, audit log</span></div>
+          <div class="box sim"><b>CHAPTR Reedy and Amplify</b><span>Simulated keywords and copy</span></div>
+          <div class="box sim"><b>Sales feed</b><span>Illustrative weekly sales</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s6">
+    <div class="sh"><span class="n">6</span><h2 id="s6">Timeline</h2></div>
+    <p>17 working days from November 13 to December 10, counting weekdays only and leaving out Andy's Thanksgiving days off (November 25 to 27). Meta access is the date that matters most.</p>
+    <div class="tl-scroll">
+      <div class="tl">
+        <div class="tl-row"><span></span><div class="days"><span class="">12</span><span class="">13</span><span class="wk">14</span><span class="wk">15</span><span class="">16</span><span class="">17</span><span class="">18</span><span class="">19</span><span class="">20</span><span class="wk">21</span><span class="wk">22</span><span class="">23</span><span class="">24</span><span class="hol">25</span><span class="hol">26</span><span class="hol">27</span><span class="wk">28</span><span class="wk">29</span><span class="">30</span><span class="">1</span><span class="">2</span><span class="">3</span><span class="">4</span><span class="wk">5</span><span class="wk">6</span><span class="">7</span><span class="">8</span><span class="">9</span><span class="">10</span></div></div>
+        <div class="tl-row"><span class="name">Setup<small>repo, sign-in, data model, Meta request</small></span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="b" style="left:calc(100%/29*1);width:calc(100%/29*1)"></span><span class="b" style="left:calc(100%/29*4);width:calc(100%/29*2)"></span></div></div>
+        <div class="tl-row"><span class="name">Launch center and plan drafting</span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="b r" style="left:calc(100%/29*6);width:calc(100%/29*3)"></span><span class="b r" style="left:calc(100%/29*11);width:calc(100%/29*2)"></span></div></div>
+        <div class="tl-row"><span class="name">Meta launch and live tracking<small>needs Meta access by Nov 23</small></span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="marker" style="left:calc(100%/29*11)"></span><span class="b r" style="left:calc(100%/29*11);width:calc(100%/29*2)"></span><span class="b r" style="left:calc(100%/29*18);width:calc(100%/29*3)"></span></div></div>
+        <div class="tl-row"><span class="name">Health score and suggestions</span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="b r" style="left:calc(100%/29*20);width:calc(100%/29*3)"></span></div></div>
+        <div class="tl-row"><span class="name">Portfolio and PDF report</span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="b" style="left:calc(100%/29*25);width:calc(100%/29*2)"></span></div></div>
+        <div class="tl-row"><span class="name">Polish and launch prep<small>prototype ready Dec 10</small></span><div class="track"><span class="off" style="left:calc(100%/29*2);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*3);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*9);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*10);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*13);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*14);width:calc(100%/29)"></span><span class="off out" style="left:calc(100%/29*15);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*16);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*17);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*23);width:calc(100%/29)"></span><span class="off" style="left:calc(100%/29*24);width:calc(100%/29)"></span><span class="marker" style="left:calc(100%/29*28)"></span><span class="b" style="left:calc(100%/29*26);width:calc(100%/29*2)"></span></div></div>
+      </div>
+    </div>
+    <p class="tl-note">November 12 to December 10, 2026. Red bars are the top-three features. Shaded columns are weekends; red-shaded columns are Thanksgiving days off. Red lines mark when Meta access is needed (Nov 23) and the prototype date (Dec 10).</p>
+  </section>
+
+  <section aria-labelledby="s7">
+    <div class="sh"><span class="n">7</span><h2 id="s7">Risks</h2></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Risk</th><th>Impact</th><th>Plan</th></tr></thead>
+        <tbody>
+          <tr><td>Meta developer app or test ad account isn't ready by Nov 23</td><td><span class="pill hi">High</span></td><td>Build the launch step against a stub with the same interface, and switch over when access arrives.</td></tr>
+          <tr><td>Automatic mode makes a change nobody expected</td><td><span class="pill md">Medium</span></td><td>Test account only, spend caps on every campaign, every change logged with one-click undo.</td></tr>
+          <tr><td>Illustrative sales numbers get mistaken for real ones</td><td><span class="pill md">Medium</span></td><td>Label sales as illustrative on every screen and in the PDF.</td></tr>
+          <tr><td>Sign-in has to use Macmillan SSO</td><td><span class="pill lo">Low</span></td><td>Start with email sign-in; add SSO after the prototype if IT requires it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="s8">
+    <div class="sh"><span class="n">8</span><h2 id="s8">What we need from Product</h2></div>
+    <div class="asks">
+      <div class="ask"><p><strong>Sponsorship</strong> for a prototype build through December 10, and a slot to review it the following week.</p></div>
+      <div class="ask"><p><strong>An owner for Meta access</strong>: a Meta developer app and a test ad account under Macmillan's Business Manager, needed by November 23.</p></div>
+      <div class="ask"><p><strong>Three to five imprint ad operators</strong> willing to run through the prototype in a usability session.</p></div>
+      <div class="ask"><p><strong>A view on automatic mode</strong>: whether it's acceptable to test changes ARGUS makes without approval, limited to the test account.</p></div>
+    </div>
+  </section>
+
+  <footer>ARGUS is named for the hundred-eyed watchman of Greek myth. Numbers in the prototype are illustrative unless they come from the Meta test account.</footer>
+</main>
+
+</body>
+</html>
