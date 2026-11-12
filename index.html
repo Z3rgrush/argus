@@ -23,13 +23,6 @@
   --f-mark: "Gasoek One", "Arial Black", Impact, sans-serif;
   --f-body: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0e0d0d; --surface: #1a1818; --ink: #f4f1f1; --muted: #b2abab; --rule: #2e2a2a;
-    --red: #ff3b30; --red-ink: #ff6a61; --red-wash: #2a1312; --on-red: #ffffff;
-    --band: #000000; --on-band: #ffffff; color-scheme: dark;
-  }
-}
 :root[data-theme="dark"] {
   --bg: #0e0d0d; --surface: #1a1818; --ink: #f4f1f1; --muted: #b2abab; --rule: #2e2a2a;
   --red: #ff3b30; --red-ink: #ff6a61; --red-wash: #2a1312; --on-red: #ffffff;
@@ -369,12 +362,10 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule)
 <script>
 (function () {
   var root = document.documentElement, btn = document.getElementById('theme-toggle');
-  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   try { var saved = localStorage.getItem('argus-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
-  function current() { var t = root.getAttribute('data-theme'); if (t === 'dark' || t === 'light') return t; return mq && mq.matches ? 'dark' : 'light'; }
+  function current() { var t = root.getAttribute('data-theme'); if (t === 'dark' || t === 'light') return t; return 'light'; }
   function render() { var next = current() === 'dark' ? 'light' : 'dark'; btn.querySelector('.tt-label').textContent = next === 'dark' ? 'Dark mode' : 'Light mode'; btn.setAttribute('aria-label', 'Switch to ' + next + ' mode'); }
   btn.addEventListener('click', function () { var next = current() === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', next); try { localStorage.setItem('argus-theme', next); } catch (e) {} render(); });
-  if (mq && mq.addEventListener) mq.addEventListener('change', render);
   new MutationObserver(render).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
   render();
 })();
